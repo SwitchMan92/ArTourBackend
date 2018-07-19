@@ -1,4 +1,4 @@
-from __future__ import unicode_literals
+#from __future__ import unicode_literals
 
 import pprint
 import wikipedia
@@ -31,19 +31,18 @@ class Wikipedia(Resource):
 class GoogleApi(Resource):
     def get(self, longitude, latitude):
         query_result = google_places.nearby_search(
-            lat_lng={"lat": float(longitude), "lng": float(latitude)},
+            lat_lng={"lat": float(latitude), "lng": float(longitude)},
+            types=[types.TYPE_PREMISE, types.TYPE_SUBPREMISE, types.TYPE_CITY_HALL, types.TYPE_MUSEUM,
+                   types.TYPE_NATURAL_FEATURE, types.TYPE_CEMETERY]
 
+            )
 
-
-            radius=5000,
-            types=[types.TYPE_CHURCH]
-        )
         results = [[a.name, float(a.geo_location["lat"]), float(a.geo_location["lng"])] for a in query_result.places]
-        return {"result" : results}
+        return {"result": results}
 
 
 api.add_resource(Wikipedia, '/wikipedia/<string:wiki_name>')
-api.add_resource(GoogleApi, '/google_api/<float:longitude>&<float:latitude>')
+api.add_resource(GoogleApi, '/google_api/<string:longitude>&<string:latitude>')
 
 """
 @app.route('/')
@@ -61,7 +60,7 @@ def hello_world():
     types.TYPE_AQUARIUM, types.TYPE_ART_GALLERY, types.TYPE_CEMETERY, types.TYPE_CHURCH,
     types.TYPE_EMBASSY, types.TYPE_HINDU_TEMPLE, types.TYPE_MOSQUE, types.TYPE_MUSEUM,
     types.TYPE_PARK, types.TYPE_STADIUM, types.TYPE_SYNAGOGUE, types.TYPE_UNIVERSITY,
-    types.TYPE_ZOO,
+    types.TYPE_ZOO, types.TYPE_CITY_HALL
 
     if query_result.has_attributions:
         print query_result.html_attributions
