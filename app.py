@@ -1,14 +1,18 @@
+from __future__ import unicode_literals
+
 import pprint
 import wikipedia
 import json
 
 from flask import Flask, request
+from flask_restful import Resource, Api
 from googleplaces import GooglePlaces, types, lang
 
 
 wikipedia.set_lang("fr")
 
 app = Flask(__name__)
+api = Api(app)
 
 API_KEY = 'AIzaSyAadpx8ImSags8ItAgCseBKfVRnTv046tA'
 google_places = GooglePlaces(API_KEY)
@@ -16,37 +20,38 @@ google_places = GooglePlaces(API_KEY)
 #43.624378
 #1.388731
 
-@app.route("/get_wiki", methods=["GET"])
-def get_wiki():
-    wiki_name = request.args.get("search")
-    result = wikipedia.search(wiki_name)
-    result = wikipedia.page(result[0])
 
-    return "<p>{0}</p>".format(repr(result.content))
+class Wikipedia(Resource):
+    def get(self, wiki_name):
+        result = wikipedia.search(wiki_name)
+        result = wikipedia.page(result[0])
+        return {"result": result.content}
 
-@app.route("/get_places", methods=["GET"])
-def get_places():
-    longitude = float(request.args.get("long"))
-    latitude = float(request.args.get("lat"))
-    radius = float(request.args.get("radius"))
-    types_param = request.args.get("types")
 
-    query_result = google_places.nearby_search(
-        lat_lng={"lat": latitude, "lng": longitude},
-        radius=5000,
-        types=[types.TYPE_CHURCH]
-    )
+class GoogleApi(Resource):
+    def get(self, longitude, latitude):
+        query_result = google_places.nearby_search(
+            lat_lng={"lat": float(longitude), "lng": float(latitude)},
 
-    results = [[a.name, float(a.geo_location["lat"]), float(a.geo_location["lng"])] for a in query_result.places]
 
-    return json.dumps(results)
 
+            radius=5000,
+            types=[types.TYPE_CHURCH]
+        )
+        results = [[a.name, float(a.geo_location["lat"]), float(a.geo_location["lng"])] for a in query_result.places]
+        return {"result" : results}
+
+
+api.add_resource(Wikipedia, '/wikipedia/<string:wiki_name>')
+api.add_resource(GoogleApi, '/google_api/<float:longitude>&<float:latitude>')
+
+"""
 @app.route('/')
 def hello_world():
 
     pp = pprint.PrettyPrinter(indent=4)
 
-    """
+    \"\"\"
     query_result = google_places.nearby_search(
             lat_lng={"lat": 43.624378, "lng": 1.388731},
             radius=5000,
@@ -77,7 +82,7 @@ def hello_world():
         print place.international_phone_number
         print place.website
         print place.url
-    """
+    \"\"\"
 
     result = wikipedia.search("Basilique Saint-Sernin de Toulouse")
 
@@ -86,7 +91,8 @@ def hello_world():
     #pp.pprint(result)
 
     return "<p>{0}</p>".format(repr(result.content))
+"""
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
