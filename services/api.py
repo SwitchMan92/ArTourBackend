@@ -28,8 +28,15 @@ class GoogleApi(Resource):
             lat_lng={"lat": latitude, "lng": longitude},
             types=[types.TYPE_PREMISE, types.TYPE_SUBPREMISE, types.TYPE_CITY_HALL, types.TYPE_MUSEUM,
                    types.TYPE_NATURAL_FEATURE, types.TYPE_CEMETERY]
-
             )
 
-        results = [[a.name, a.get_details(), float(a.geo_location["lat"]), float(a.geo_location["lng"])] for a in query_result.places]
-        return {"result": results}
+        data = list()
+
+        for result in query_result.places:
+            data.append({
+                    "name": result.name,
+                    "details": result.get_details(),
+                    "latitude": float(result.geo_location["lat"]),
+                    "longitude": float(result.geo_location["lng"])
+                })
+        return data
