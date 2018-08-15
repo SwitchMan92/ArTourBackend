@@ -6,7 +6,7 @@ from googleplaces import GooglePlaces, types
 
 app = Flask(__name__)
 
-API_KEY = 'AIzaSyAadpx8ImSags8ItAgCseBKfVRnTv046tA'
+API_KEY = ""
 google_places = GooglePlaces(API_KEY)
 
 wikipedia.set_lang("fr")
