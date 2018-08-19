@@ -1,5 +1,5 @@
-from config import API_KEY
 import wikipedia
+from config import API_KEY
 from flask import Flask
 from flask_restful import Resource, Api
 from googleplaces import GooglePlaces, types
@@ -7,11 +7,8 @@ from googleplaces import GooglePlaces, types
 
 app = Flask(__name__)
 
-
 google_places = GooglePlaces(API_KEY)
-
 wikipedia.set_lang("fr")
-
 
 api = Api(app)
 
